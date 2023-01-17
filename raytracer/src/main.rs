@@ -33,9 +33,9 @@ use crate::material::Material;
 
 fn main() {
 
-    const IMAGE_WIDTH: u32 = 800;
-    const IMAGE_HEIGHT: u32 = 600;
-    const SAMPLES: i32 = 100;
+    const IMAGE_WIDTH: u32 = 400;
+    const IMAGE_HEIGHT: u32 = 300;
+    const SAMPLES: i32 = 8000;
 
     
 
@@ -69,28 +69,24 @@ fn main() {
     // let world = HittableList::new(list);
 
     let world: HittableList = cornell_box();
-
-    let look_from = Vec3::new(278.0, 278.0, -800.0);
-    let look_at = Vec3::new(278.0, 278.0, 0.0);
-    let vup = Vec3::new(0.0, 1.0, 0.0);
-    let vfov = 40.0;
-    let aspect_ratio = 2.0;
-
-    let camera = Camera::new(
-        look_from,
-        look_at,
-        vup,
-        vfov,
-        aspect_ratio,
-    );
-
-    let cam = Camera::new(
-        Vec3::new(100.0, 100.0, 100.0),
-        Vec3::new(0.0, 0.0, 0.0),
+    
+    //Standard X-axis
+    let standard_cam = Camera::new(
+        Vec3::new(40.0, 20.0, 0.0),
+        Vec3::new(0.0, 20.0, 00.0),
         Vec3::new(0.0, 1.0, 0.0),
         90.0,
         IMAGE_WIDTH as f64 / IMAGE_HEIGHT as f64,
     );
+    //Standard X-axis
+    let cam = Camera::new(
+        Vec3::new(40.0, 20.0, 0.0),
+        Vec3::new(0.0, 20.0, 0.0),
+        Vec3::new(0.0, 1.0, 0.0),
+        90.0,
+        IMAGE_WIDTH as f64 / IMAGE_HEIGHT as f64,
+    );
+
 
     // let cam: Camera = Camera::new(Vec3::new(13.0, 2.0, 3.0), Vec3::new(0.0, 0.0, 0.0),
     // Vec3::new(0.0, 1.0, 0.0), 20.0, (IMAGE_WIDTH as f64)/(IMAGE_HEIGHT as f64), 0.1, 10.0);
@@ -249,46 +245,105 @@ fn cornell_box() -> HittableList {
     let red = Material::Lambertian { albedo: Vec3::new(0.65, 0.05, 0.05) };
     let white = Material::Lambertian { albedo: Vec3::new(0.73, 0.73, 0.73) };
     let green = Material::Lambertian { albedo:Vec3::new(0.12, 0.45, 0.15) };
-    let light = Material::Light { emittance: Vec3::new(15.0, 15.0, 15.0) };
+    let light = Material::Light { emittance: Vec3::new(40.0, 20.0, 10.0) };
 
     // Add the floor
-    let floor = Rectangle {
-        p0: Vec3::new(-100.0, 0.0, -100.0),
-        p1: Vec3::new(-100.0, 0.0, 100.0),
-        p2: Vec3::new(100.0, 0.0, 100.0),
-        material: white.clone(),
-        aabb: Aabb::new(Vec3::new(-100.0, 0.0, -100.0), Vec3::new(100.0, 0.0, 100.0)),
-    };
-    list.push(Box::new(floor));
+    list.push(Box::new(Plane::plane(
+        Vec3::new(0.0, 1.0, 0.0),
+        0.0,
+        white,
+    )));
 
-    // Add the ceiling
-    let ceiling = Rectangle {
-        p0: Vec3::new(-100.0, 100.0, 100.0),
-        p1: Vec3::new(-100.0, 100.0, -100.0),
-        p2: Vec3::new(100.0, 100.0, -100.0),
-        material: white.clone(),
-        aabb: Aabb::new(Vec3::new(-100.0, 100.0, -100.0), Vec3::new(100.0, 100.0, 100.0)),
-    };
-    list.push(Box::new(ceiling));
+    // Add the roof
+    list.push(Box::new(Plane::plane(
+        Vec3::new(0.0, 1.0, 0.0),
+        40.0,
+        white,
+    )));
 
-    // Add the walls
-    let left_wall = Rectangle {
-        p0: Vec3::new(-100.0, 0.0, 100.0),
-        p1: Vec3::new(-100.0, 0.0, -100.0),
-        p2: Vec3::new(-100.0, 100.0, -100.0),
-        material: green.clone(),
-        aabb: Aabb::new(Vec3::new(-100.0, 0.0, -100.0), Vec3::new(-100.0, 100.0, 100.0)),
-    };
-    list.push(Box::new(left_wall));
+    // Add the backwall
+    list.push(Box::new(Plane::plane(
+        Vec3::new(1.0, 0.0, 0.0),
+        0.0,
+        white,
+    )));
+    // Add the leftwall
+    list.push(Box::new(Plane::plane(
+        Vec3::new(0.0, 0.0, 1.0),
+        20.0,
+        white,
+    )));
 
-    let right_wall = Rectangle {
-        p0: Vec3::new(100.0, 0.0, -100.0),
-        p1: Vec3::new(100.0, 0.0, 100.0),
-        p2: Vec3::new(100.0, 100.0, 100.0),
-        material: red.clone(),
-        aabb: Aabb::new(Vec3::new(100.0, 0.0, 100.0), Vec3::new(100.0, 100.0, 100.0)),
-    };
-    list.push(Box::new(right_wall));
+    // Add the rightwall
+    list.push(Box::new(Plane::plane(
+        Vec3::new(0.0, 0.0, 1.0),
+        -20.0,
+        white,
+    )));
+
+    //center sphere
+    list.push(Box::new(Sphere::sphere(
+        Vec3::new(10.0, 10.0, 0.0),
+        5.0,
+        red
+    )));
+    //light source sphere
+    // list.push(Box::new(Sphere::sphere(
+    //     Vec3::new(20.0, 40.0, 20.0),
+    //     5.0,
+    //     light
+    // )));
+
+    // list.push(Box::new(Plane::plane(
+    //     Vec3::new(1.0, 0.0, 0.0),
+    //     1.0,
+    //     green
+    // )));
+
+    // list.push(Box::new(Plane::plane(
+    //     Vec3::new(0.0, 1.0, 0.0),
+    //     1.0,
+    //     white
+    // )));
+
+    // // Add the floor
+    // let floor = Rectangle {
+    //     p0: Vec3::new(-100.0, 0.0, -100.0),
+    //     p1: Vec3::new(-100.0, 0.0, 100.0),
+    //     p2: Vec3::new(100.0, 0.0, 100.0),
+    //     material: white.clone(),
+    //     aabb: Aabb::new(Vec3::new(-100.0, 0.0, -100.0), Vec3::new(100.0, 0.0, 100.0)),
+    // };
+    // list.push(Box::new(floor));
+
+    // // Add the ceiling
+    // let ceiling = Rectangle {
+    //     p0: Vec3::new(-100.0, 100.0, 100.0),
+    //     p1: Vec3::new(-100.0, 100.0, -100.0),
+    //     p2: Vec3::new(100.0, 100.0, -100.0),
+    //     material: white.clone(),
+    //     aabb: Aabb::new(Vec3::new(-100.0, 100.0, -100.0), Vec3::new(100.0, 100.0, 100.0)),
+    // };
+    // list.push(Box::new(ceiling));
+
+    // // Add the walls
+    // let left_wall = Rectangle {
+    //     p0: Vec3::new(-100.0, 0.0, 100.0),
+    //     p1: Vec3::new(-100.0, 0.0, -100.0),
+    //     p2: Vec3::new(-100.0, 100.0, -100.0),
+    //     material: green.clone(),
+    //     aabb: Aabb::new(Vec3::new(-100.0, 0.0, -100.0), Vec3::new(-100.0, 100.0, 100.0)),
+    // };
+    // list.push(Box::new(left_wall));
+
+    // let right_wall = Rectangle {
+    //     p0: Vec3::new(100.0, 0.0, -100.0),
+    //     p1: Vec3::new(100.0, 0.0, 100.0),
+    //     p2: Vec3::new(100.0, 100.0, 100.0),
+    //     material: red.clone(),
+    //     aabb: Aabb::new(Vec3::new(100.0, 0.0, 100.0), Vec3::new(100.0, 100.0, 100.0)),
+    // };
+    // list.push(Box::new(right_wall));
 
     let world = HittableList::new(list);
     world
